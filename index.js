@@ -43,7 +43,7 @@ app.post('/users/register',(req,res)=>{
         res.json({error:"Required field is empty"})
     }
 })
-app.post('users/login',(req,res)=>{
+app.post('/users/login',(req,res)=>{
     var email = req.body.email
     var password = req.body.password
     if(email && password){

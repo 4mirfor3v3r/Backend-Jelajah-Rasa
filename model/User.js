@@ -16,7 +16,6 @@ const userSchema = new Schema({
 	},
 	likedFoodId: {
 		type: String,
-		required: true,
 	},
 });
 
