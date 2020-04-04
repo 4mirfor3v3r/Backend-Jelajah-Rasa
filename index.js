@@ -21,7 +21,7 @@ app.post('/users/register',(req,res)=>{
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        likedFoodId:""
+        likedFoodId:[]
     };
     if(data.name && data.email && data.password){
         Users.findOne({email:data.email})

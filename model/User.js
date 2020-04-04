@@ -15,8 +15,17 @@ const userSchema = new Schema({
 		required: true,
 	},
 	likedFoodId: {
-		type: String,
+		type: [Number],
 	},
+	_likedFoodSignature:{
+		type:String,
+		unique:true
+	}
 });
+userSchema.pre('save', function(next){
+	this._likedFoodSignature = this.likedFoodId.join('.')
+	next()
+})
+
 
 module.exports = Users = mongoose.model('users', userSchema);
