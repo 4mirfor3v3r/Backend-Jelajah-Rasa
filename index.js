@@ -46,7 +46,7 @@ app.post('/users/register', (req, res) => {
 	} else {
 		res.json({ error: 'Required field is empty' });
 	}
-});
+}); // DONE
 app.post('/users/login', (req, res) => {
 	var email = req.body.email;
 	var password = req.body.password;
@@ -60,7 +60,7 @@ app.post('/users/login', (req, res) => {
 	} else {
 		res.json({ error: 'Required field is empty' });
 	}
-});
+}); // DONE
 
 // ITEM
 app.post('/foods/imgUploader', upload.single('photos'), (req, res) => {
@@ -88,16 +88,18 @@ app.post('/foods/addList', (req, res) => {
 			.catch(e => res.json({ msg: e, status: 'error', food: null }));
 	} else {
 		res.json({ msg: 'Required Field is Empty', status: 'error', food: null });
-		console.error(data)
+		console.error(data);
 	}
-});
-app.get('/foods/list',(req,res)=>{
-	Foods.find({}).then(foods=>{
-		if(foods) res.json({ msg: null, status: 'ok', food: foods });
-		else res.json({ msg: "No One Data", status: 'error', food: null });
-	}).catch(e=>res.json({ msg: e, status: 'error', food: null }))
-})
-app.put('/foods/listUpdate/:id',(req,res)=>{
+}); // DONE
+app.get('/foods/list', (req, res) => {
+	Foods.find({})
+		.then(food => {
+			if (food) res.json({ msg: null, status: 'ok', foods: food });
+			else res.json({ msg: 'No One Data', status: 'error', foods: null });
+		})
+		.catch(e => res.json({ msg: e, status: 'error', foods: null }));
+});	// DONE
+app.put('/foods/listUpdate/:id', (req, res) => {
 	const data = {
 		name: req.body.name,
 		imgUrl: req.body.imgUrl,
@@ -106,8 +108,8 @@ app.put('/foods/listUpdate/:id',(req,res)=>{
 		ingredients: req.body.ingredients,
 		fact: req.body.fact,
 		steps: req.body.steps,
-	}
-	if ((data.name, data.imgUrl, data.time, data.likes, data.ingredients, data.fact, data.steps)){
+	};
+	if ((data.name, data.imgUrl, data.time, data.likes, data.ingredients, data.fact, data.steps)) {
 		Foods.findOneAndUpdate(
 			{ _id: req.params.id },
 			{
@@ -115,53 +117,45 @@ app.put('/foods/listUpdate/:id',(req,res)=>{
 			}
 		)
 			.then(food => {
-				if (food) res.send(food);
+				if (food)
+					res.json({
+						msg: null,
+						status: 'ok',
+						food: {
+							fact: data.fact,
+							id: food.id,
+							ingredients: data.ingredients,
+							steps: data.steps,
+							_id: food._id,
+							name: data.name,
+							imgUrl: data.imgUrl,
+							time: data.time,
+							likes: data.likes,
+							__v: food.__v,
+						},
+					});
 			})
 			.catch(e => res.json({ msg: e, status: 'error', food: null }));
 	}
-})
+}); // DONE
 
-app.put('/foods/listAddLikes/:userID',(req,res)=>{
-	const data = {
-		id:req.body.id,
-	}
-	Users.findOne({_id:req.params.userId})
-	.then(user =>{
-		if(user){
-			if(data.id){
-				Foods.findOneAndUpdate({id:data.id},{$inc:{likes:1}})
-				.then(foods=>{
-					if(foods) {
-						Users.findOneAndUpdate({_id:user._id},{$push:{likedFoodId:foods.id}}).then(doc=>{
-							if(doc) res.json({ msg: null, status: 'ok', food: foods });
-							else res.json({ msg: "Failed to update", status: 'error', food: null });
-						}).catch(e=> res.json({ msg: e, status: 'error', food: null }))
-					}
-					else res.json({ msg: "Unknown Error", status: 'error', food: null });
-				}).catch(e=>res.json({ msg: e, status: 'error', food: null }))
-			}
-			else{res.json({ msg: "Food Not Found", status: 'error', food: null })}
-		}
-		else res.json({ msg: "Register First", status: 'reg', food: null })
-	})
-})
-
-app.put('/foods/listRemoveLikes/:userID', (req, res) => {
+app.put('/foods/listAddLikes/:userID', (req, res) => {
 	const data = {
 		id: req.body.id,
 	};
-	Users.findOne({ _id: req.params.userId }).then(user => {
+	Users.findOne({ _id: req.params.userID }).then(user => {
 		if (user) {
 			if (data.id) {
-				Foods.findOneAndUpdate({ id: data.id,likes:{$gt:0} }, { $inc: { likes: -1 } })
+				Foods.findOneAndUpdate({ id: data.id }, { $inc: { likes: 1 } })
 					.then(foods => {
 						if (foods) {
-							Users.findOneAndUpdate({_id:user._id},{$pullAll:{likedFoodId:[foods._id]}}).then(doc=>{
-								if (doc) res.json({ msg: null, status: 'ok', food: foods });
-								else res.json({ msg: 'Failed To Update', status: 'error', food: null });
-							}).catch(e=>res.json({ msg: e, status: 'ok', food: null }))
-						}
-						else res.json({ msg: 'Unknown Error', status: 'error', food: null });
+							Users.findOneAndUpdate({ _id: user._id }, { $push: { likedFoodId: foods.id } })
+								.then(doc => {
+									if (doc) res.json({ msg: null, status: 'ok', food: foods });
+									else res.json({ msg: 'Failed to update', status: 'error', food: null });
+								})
+								.catch(e => res.json({ msg: e, status: 'error', food: null }));
+						} else res.json({ msg: 'Unknown Error', status: 'error', food: null });
 					})
 					.catch(e => res.json({ msg: e, status: 'error', food: null }));
 			} else {
@@ -169,15 +163,48 @@ app.put('/foods/listRemoveLikes/:userID', (req, res) => {
 			}
 		} else res.json({ msg: 'Register First', status: 'reg', food: null });
 	});
-});
+}); // DONE
 
-app.delete('/foods/listelete/:id',(req,res)=>{
-	Foods.deleteOne({_id:req.params.id}).then(data =>{
-		if(data.ok) res.send(data)
-		else{
-			res.json({ msg: "Id Not Found", status: 'error', food: null })
+app.put('/foods/listRemoveLikes/:userID', (req, res) => {
+	const data = {
+		id: req.body.id,
+	};
+	Users.findOne({ _id: req.params.userID }).then(user => {
+		if (user) {
+			if (data.id) {
+				Foods.findOneAndUpdate({ id: data.id, likes: { $gt: 0 } }, { $inc: { likes: -1 } })
+					.then(foods => {
+						if (foods) {
+							Users.findOneAndUpdate({ _id: user._id }, { $pullAll: { likedFoodId: [foods.id] } })
+								.then(doc => {
+									if (doc) res.json({ msg: null, status: 'ok', food: foods });
+									else res.json({ msg: 'Failed To Update', status: 'error', food: null });
+								})
+								.catch(e => res.json({ msg: e, status: 'error', food: null }));
+						} else {
+							console.log(data.id)
+							res.json({ msg: 'Likes Is ZERO', status: 'error', food: null });
+						}
+					})
+					.catch(e => res.json({ msg: e, status: 'error', food: null }));
+			} else {
+				res.json({ msg: 'Food Not Found', status: 'error', food: null });
+			}
+		} else {
+			res.json({ msg: 'Register First', status: 'reg', food: null });
 		}
-	}).catch(e=> res.json({ msg: e, status: 'error', food: null }))
-})
+	});
+}); // DONE
+
+app.delete('/foods/listDelete/:id', (req, res) => {
+	Foods.deleteOne({ _id: req.params.id })
+		.then(data => {
+			if (data.ok) res.send(data);
+			else {
+				res.json({ msg: 'Id Not Found', status: 'error', food: null });
+			}
+		})
+		.catch(e => res.json({ msg: e, status: 'error', food: null }));
+});
 
 module.exports = app;
