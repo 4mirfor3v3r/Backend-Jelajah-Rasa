@@ -19,6 +19,5 @@ mongoose
     .catch(e =>{
         console.log(e)
     })
-
 app.use('/api.jelajahrasa.com/v1',Index)
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

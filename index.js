@@ -88,6 +88,7 @@ app.post('/foods/addList', (req, res) => {
 			.catch(e => res.json({ msg: e, status: 'error', food: null }));
 	} else {
 		res.json({ msg: 'Required Field is Empty', status: 'error', food: null });
+		console.error(data)
 	}
 });
 app.get('/foods/list',(req,res)=>{
@@ -98,7 +99,6 @@ app.get('/foods/list',(req,res)=>{
 })
 app.put('/foods/listUpdate/:id',(req,res)=>{
 	const data = {
-		id: null,
 		name: req.body.name,
 		imgUrl: req.body.imgUrl,
 		time: req.body.time,
@@ -119,6 +119,25 @@ app.put('/foods/listUpdate/:id',(req,res)=>{
 			})
 			.catch(e => res.json({ msg: e, status: 'error', food: null }));
 	}
+})
+app.put('/foods/listUpdateLikes/:userID',(req,res)=>{
+	const data = {
+		name: req.body.name,
+		imgUrl: req.body.imgUrl,
+		time: req.body.time,
+		likes: 0,
+		ingredients: req.body.ingredients,
+		fact: req.body.fact,
+		steps: req.body.steps,
+	}
+	Users.findOne({_id:req.params.userId})
+	.then(user =>{
+		if(user){
+			if(req.body.id){
+				
+			}
+		}
+	})
 })
 app.delete('/foods/listelete/:id',(req,res)=>{
 	Foods.deleteOne({_id:req.params.id}).then(data =>{
