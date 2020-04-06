@@ -120,25 +120,57 @@ app.put('/foods/listUpdate/:id',(req,res)=>{
 			.catch(e => res.json({ msg: e, status: 'error', food: null }));
 	}
 })
-app.put('/foods/listUpdateLikes/:userID',(req,res)=>{
+
+app.put('/foods/listAddLikes/:userID',(req,res)=>{
 	const data = {
-		name: req.body.name,
-		imgUrl: req.body.imgUrl,
-		time: req.body.time,
-		likes: 0,
-		ingredients: req.body.ingredients,
-		fact: req.body.fact,
-		steps: req.body.steps,
+		id:req.body.id,
 	}
 	Users.findOne({_id:req.params.userId})
 	.then(user =>{
 		if(user){
-			if(req.body.id){
-				
+			if(data.id){
+				Foods.findOneAndUpdate({id:data.id},{$inc:{likes:1}})
+				.then(foods=>{
+					if(foods) {
+						Users.findOneAndUpdate({_id:user._id},{$push:{likedFoodId:foods.id}}).then(doc=>{
+							if(doc) res.json({ msg: null, status: 'ok', food: foods });
+							else res.json({ msg: "Failed to update", status: 'error', food: null });
+						}).catch(e=> res.json({ msg: e, status: 'error', food: null }))
+					}
+					else res.json({ msg: "Unknown Error", status: 'error', food: null });
+				}).catch(e=>res.json({ msg: e, status: 'error', food: null }))
 			}
+			else{res.json({ msg: "Food Not Found", status: 'error', food: null })}
 		}
+		else res.json({ msg: "Register First", status: 'reg', food: null })
 	})
 })
+
+app.put('/foods/listRemoveLikes/:userID', (req, res) => {
+	const data = {
+		id: req.body.id,
+	};
+	Users.findOne({ _id: req.params.userId }).then(user => {
+		if (user) {
+			if (data.id) {
+				Foods.findOneAndUpdate({ id: data.id,likes:{$gt:0} }, { $inc: { likes: -1 } })
+					.then(foods => {
+						if (foods) {
+							Users.findOneAndUpdate({_id:user._id},{$pullAll:{likedFoodId:[foods._id]}}).then(doc=>{
+								if (doc) res.json({ msg: null, status: 'ok', food: foods });
+								else res.json({ msg: 'Failed To Update', status: 'error', food: null });
+							}).catch(e=>res.json({ msg: e, status: 'ok', food: null }))
+						}
+						else res.json({ msg: 'Unknown Error', status: 'error', food: null });
+					})
+					.catch(e => res.json({ msg: e, status: 'error', food: null }));
+			} else {
+				res.json({ msg: 'Food Not Found', status: 'error', food: null });
+			}
+		} else res.json({ msg: 'Register First', status: 'reg', food: null });
+	});
+});
+
 app.delete('/foods/listelete/:id',(req,res)=>{
 	Foods.deleteOne({_id:req.params.id}).then(data =>{
 		if(data.ok) res.send(data)
