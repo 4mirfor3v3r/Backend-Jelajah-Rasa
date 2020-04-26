@@ -46,7 +46,7 @@ app.post('/users/register', (req, res) => {
 	} else {
 		res.json({ error: 'Required field is empty' });
 	}
-}); // DONE
+}); // DONE, ANDROID
 app.post('/users/login', (req, res) => {
 	var email = req.body.email;
 	var password = req.body.password;
@@ -60,13 +60,13 @@ app.post('/users/login', (req, res) => {
 	} else {
 		res.json({ error: 'Required field is empty' });
 	}
-}); // DONE
+}); // DONE, ANDROID
 
 // ITEM
 app.post('/foods/imgUploader', upload.single('photos'), (req, res) => {
 	res.send(req.file);
 	return res.status(200).end();
-}); // UPLOADER
+}); // UPLOADER, ANDROID
 
 app.post('/foods/addList', (req, res) => {
 	const data = {
@@ -91,14 +91,14 @@ app.post('/foods/addList', (req, res) => {
 		console.error(data);
 	}
 }); // DONE
-app.get('/foods/list', (req, res) => {
+app.get('/foods/list/', (req, res) => {
 	Foods.find({})
 		.then(food => {
 			if (food) res.json({ msg: null, status: 'ok', foods: food });
 			else res.json({ msg: 'No One Data', status: 'error', foods: null });
 		})
 		.catch(e => res.json({ msg: e, status: 'error', foods: null }));
-});	// DONE
+});	// DONE, ANDROID
 app.put('/foods/listUpdate/:id', (req, res) => {
 	const data = {
 		name: req.body.name,
