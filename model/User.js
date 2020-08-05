@@ -22,10 +22,6 @@ const userSchema = new Schema({
 		unique:true
 	}
 });
-userSchema.pre('save', function(next){
-	this._likedFoodSignature = this.likedFoodId.join('.')
-	next()
-})
 
 
 module.exports = Users = mongoose.model('users', userSchema);

@@ -33,16 +33,16 @@ app.post('/users/register', (req, res) => {
 					bcrypt.hash(data.password, 10, (err, hash) => {
 						data.password = hash;
 						Users.create(data)
-							.then(userp => res.json({ msg: null, status: 'ok', user: userp }))
+							.then(userp => res.json({ msg: null, status: 'ok', response: userp }))
 							.catch(e => {
-								res.json({ msg: e, status: 'error', user: null });
+								res.json({ msg: e, status: 'error', response: null });
 							});
 					});
 				} else {
-					res.json({ msg: 'Email Already Exists', status: 'error', user: null });
+					res.json({ msg: 'Email Already Exists', status: 'error', response: null });
 				}
 			})
-			.catch(e => res.json({ msg: e, status: 'error', user: null }));
+			.catch(e => res.json({ msg: e, status: 'error', response: null }));
 	} else {
 		res.json({ error: 'Required field is empty' });
 	}
@@ -53,9 +53,9 @@ app.post('/users/login', (req, res) => {
 	if (email && password) {
 		Users.findOne({ email: req.body.email }).then(usera => {
 			if (usera) {
-				if (bcrypt.compareSync(password, usera.password)) res.json({ msg: null, status: 'ok', user: usera });
-				else res.json({ msg: 'Email or password wrong.', status: 'error', user: null });
-			} else res.json({ msg: 'Email or password wrong.', status: 'error', user: null });
+				if (bcrypt.compareSync(password, usera.password)) res.json({ msg: null, status: 'ok', response: usera });
+				else res.json({ msg: 'Email or password wrong.', status: 'error', response: null });
+			} else res.json({ msg: 'Email or password wrong.', status: 'error', response: null });
 		});
 	} else {
 		res.json({ error: 'Required field is empty' });
@@ -82,23 +82,26 @@ app.post('/foods/addList', (req, res) => {
 	if ((data.name, data.imgUrl, data.time, data.likes, data.ingredients, data.fact, data.steps)) {
 		Foods.create(data)
 			.then(foods => {
-				if (foods) res.json({ msg: null, status: 'ok', food: foods });
-				else res.json({ msg: 'Unknown Error', status: 'error', food: null });
+				if (foods) res.json({ msg: null, status: 'ok', response: foods });
+				else res.json({ msg: 'Unknown Error', status: 'error', response: null });
 			})
-			.catch(e => res.json({ msg: e, status: 'error', food: null }));
+			.catch(e => res.json({ msg: e, status: 'error', response: null }));
 	} else {
-		res.json({ msg: 'Required Field is Empty', status: 'error', food: null });
+		res.json({ msg: 'Required Field is Empty', status: 'error', response: null });
 		console.error(data);
 	}
 }); // DONE
 app.get('/foods/list/', (req, res) => {
 	Foods.find({})
 		.then(food => {
-			if (food) res.json({ msg: null, status: 'ok', foods: food });
-			else res.json({ msg: 'No One Data', status: 'error', foods: null });
+			if (food) res.json({ msg: null, status: 'ok', response: food });
+			else res.json({ msg: 'No One Data', status: 'error', response: null });
 		})
-		.catch(e => res.json({ msg: e, status: 'error', foods: null }));
+		.catch(e => res.json({ msg: e, status: 'error', response: null }));
 });	// DONE, ANDROID
+app.get("/foods/list/:start/:end",(req, res) =>{
+	Foods.find({})
+})
 app.put('/foods/listUpdate/:id', (req, res) => {
 	const data = {
 		name: req.body.name,
@@ -121,7 +124,7 @@ app.put('/foods/listUpdate/:id', (req, res) => {
 					res.json({
 						msg: null,
 						status: 'ok',
-						food: {
+						response: {
 							fact: data.fact,
 							id: food.id,
 							ingredients: data.ingredients,
@@ -135,7 +138,7 @@ app.put('/foods/listUpdate/:id', (req, res) => {
 						},
 					});
 			})
-			.catch(e => res.json({ msg: e, status: 'error', food: null }));
+			.catch(e => res.json({ msg: e, status: 'error', response: null }));
 	}
 }); // DONE
 
@@ -151,17 +154,17 @@ app.put('/foods/listAddLikes/:userID', (req, res) => {
 						if (foods) {
 							Users.findOneAndUpdate({ _id: user._id }, { $push: { likedFoodId: foods.id } })
 								.then(doc => {
-									if (doc) res.json({ msg: null, status: 'ok', food: foods });
-									else res.json({ msg: 'Failed to update', status: 'error', food: null });
+									if (doc) res.json({ msg: null, status: 'ok', response: foods });
+									else res.json({ msg: 'Failed to update', status: 'error', response: null });
 								})
-								.catch(e => res.json({ msg: e, status: 'error', food: null }));
-						} else res.json({ msg: 'Unknown Error', status: 'error', food: null });
+								.catch(e => res.json({ msg: e, status: 'error', response: null }));
+						} else res.json({ msg: 'Unknown Error', status: 'error', response: null });
 					})
-					.catch(e => res.json({ msg: e, status: 'error', food: null }));
+					.catch(e => res.json({ msg: e, status: 'error', response: null }));
 			} else {
-				res.json({ msg: 'Food Not Found', status: 'error', food: null });
+				res.json({ msg: 'Food Not Found', status: 'error', response: null });
 			}
-		} else res.json({ msg: 'Register First', status: 'reg', food: null });
+		} else res.json({ msg: 'Register First', status: 'reg', response: null });
 	});
 }); // DONE
 
@@ -177,21 +180,21 @@ app.put('/foods/listRemoveLikes/:userID', (req, res) => {
 						if (foods) {
 							Users.findOneAndUpdate({ _id: user._id }, { $pullAll: { likedFoodId: [foods.id] } })
 								.then(doc => {
-									if (doc) res.json({ msg: null, status: 'ok', food: foods });
-									else res.json({ msg: 'Failed To Update', status: 'error', food: null });
+									if (doc) res.json({ msg: null, status: 'ok', response: foods });
+									else res.json({ msg: 'Failed To Update', status: 'error', response: null });
 								})
-								.catch(e => res.json({ msg: e, status: 'error', food: null }));
+								.catch(e => res.json({ msg: e, status: 'error', response: null }));
 						} else {
 							console.log(data.id)
-							res.json({ msg: 'Likes Is ZERO', status: 'error', food: null });
+							res.json({ msg: 'Likes Is ZERO', status: 'error', response: null });
 						}
 					})
-					.catch(e => res.json({ msg: e, status: 'error', food: null }));
+					.catch(e => res.json({ msg: e, status: 'error', response: null }));
 			} else {
-				res.json({ msg: 'Food Not Found', status: 'error', food: null });
+				res.json({ msg: 'Food Not Found', status: 'error', response: null });
 			}
 		} else {
-			res.json({ msg: 'Register First', status: 'reg', food: null });
+			res.json({ msg: 'Register First', status: 'reg', response: null });
 		}
 	});
 }); // DONE
@@ -201,10 +204,10 @@ app.delete('/foods/listDelete/:id', (req, res) => {
 		.then(data => {
 			if (data.ok) res.send(data);
 			else {
-				res.json({ msg: 'Id Not Found', status: 'error', food: null });
+				res.json({ msg: 'Id Not Found', status: 'error', response: null });
 			}
 		})
-		.catch(e => res.json({ msg: e, status: 'error', food: null }));
+		.catch(e => res.json({ msg: e, status: 'error', response: null }));
 });
 
 module.exports = app;
