@@ -1,1 +1,1 @@
-web: npm run build-ts & npm run watch-ts & npm run start & wait -n
+web: npm run build-ts & npm run start & wait -n
