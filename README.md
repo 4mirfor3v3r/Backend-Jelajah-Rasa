@@ -23,3 +23,8 @@ https://documenter.getpostman.com/view/7000312/TVetaRBM
   - mongoose-typescript
   - ts-node
   - typescript
+
+To run on your localhost
+
+Pre-require TypeScript Installed
+Copy and paste on Your Terminal `npm install && npm run start`
